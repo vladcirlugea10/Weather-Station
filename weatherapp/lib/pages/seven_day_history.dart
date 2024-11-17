@@ -9,9 +9,18 @@ class SevenDayHistory extends StatelessWidget {
       appBar: AppBar(
         title: const Text('7 Day History'),
       ),
-      body: Center(
-        child: const Text('7 Day History'),
-      ),
+      body: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: const [
+              Text(
+                'Timisoara',
+              ),
+            ],
+          ),
+        )
     );
   }
 }
