@@ -40,6 +40,7 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                     'Humidity: ${dayData['humidity'] ?? 'N/A'}%\n'
                     'Pressure: ${dayData['pressure'] ?? 'N/A'} hPa\n'
                     'Rain: ${dayData['rainPercentage'] ?? 'N/A'}%',
+                'rainPercentage': dayData['rainPercentage']?.toString() ?? '0',
               };
             }
             
