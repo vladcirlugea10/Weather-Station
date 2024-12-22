@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:weatherapp/utils/date_utils.dart';
 
-class Daycard extends StatelessWidget {
+class Daycard extends StatefulWidget {
   final String day;
   final String data;
   final VoidCallback onTap;
@@ -13,13 +16,66 @@ class Daycard extends StatelessWidget {
   });
 
   @override
+  _DaycardState createState() => _DaycardState();
+}
+
+class _DaycardState extends State<Daycard>{
+  late String minTemperature;
+  late String maxTemperature;
+
+  @override
+  void initState() {
+    super.initState();
+    minTemperature = 'Loading';
+    maxTemperature = 'Loading';
+    fetchMinMaxTemperatures();
+  }
+
+  Future<void> fetchMinMaxTemperatures() async {
+    try{
+      final String day = extractDate(widget.day);
+      final response = await http.get(Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/dailyMaximums?day=$day'));
+
+      if(response.statusCode == 200){
+        final data = jsonDecode(response.body);
+        print('Response Data: $data');
+
+        if(data != null){
+          setState(() {
+            minTemperature = '${data['minTemperature'].toStringAsFixed(1)}';
+            maxTemperature = '${data['maxTemperature'].toStringAsFixed(1)}';
+            print("AICI: $minTemperature / $maxTemperature");
+          });
+        } else {
+          setState(() {
+            minTemperature = 'N/A';
+            maxTemperature = 'N/A';
+          });
+        }
+      } else {
+        print('Failed to fetch data!');
+        setState(() {
+          minTemperature = 'N/A';
+          maxTemperature = 'N/A';
+        });
+      }
+    } catch(error){
+      print('Failed to fetch data $error');
+      setState(() {
+        minTemperature = 'N/A';
+        maxTemperature = 'N/A';
+      });
+    }
+}
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(8),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(8),
@@ -33,10 +89,17 @@ class Daycard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "$day",
+                        widget.day,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        "$maxTemperature°C / $minTemperature°C",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
                         ),
                       ),
                     ],
@@ -46,7 +109,7 @@ class Daycard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                data,
+                widget.data,
                 style: const TextStyle(fontSize: 14),
               ),
             ],
@@ -56,3 +119,4 @@ class Daycard extends StatelessWidget {
     );
   }
 }
+
