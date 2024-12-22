@@ -35,18 +35,19 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
             if (dayData is Map) {
               return {
                 'day': DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)).toString(),
-                'summary':
-                    'Temp: ${dayData['temperature'] ?? 'N/A'}°C\n'
-                    'Humidity: ${dayData['humidity'] ?? 'N/A'}%\n'
-                    'Pressure: ${dayData['pressure'] ?? 'N/A'} hPa\n'
-                    'Rain: ${dayData['rainPercentage'] ?? 'N/A'}%',
-                'rainPercentage': dayData['rainPercentage']?.toString() ?? '0',
+                'summary': 
+                  'Temp: ${dayData['temperature'] ?? 'N/A'}°C\n'
+                  'Pressure: ${dayData['pressure'] ?? 'N/A'} hPa',
+                'humidity': dayData['humidity']?.toString() ?? 'N/A',
+                'rain': dayData['rainPercentage']?.toString() ?? 'N/A',
               };
             }
             
             return {
               'day': DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)).toString(),
               'summary': 'Invalid data',
+              'humidity': 'N/A',
+              'rain': 'N/A',
             };
           }).toList();
           
@@ -86,9 +87,11 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                 itemCount: weatherData.length,
                 itemBuilder: (context, index) {
                   final dayData = weatherData[index];
-                  return Daycard(
+                  return DayCard(
                     day: dayData['day']!,
                     data: dayData['summary']!,
+                    humidity: dayData['humidity']!,
+                    rain: dayData['rain']!,
                     onTap: () {},
                   );
                 },
