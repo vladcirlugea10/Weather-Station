@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weatherapp/pages/day_details.dart';
 import 'package:weatherapp/widgets/DayCard.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -92,7 +93,19 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                     data: dayData['summary']!,
                     humidity: dayData['humidity']!,
                     rain: dayData['rain']!,
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DayDetails(
+                            day: dayData['day']!,
+                            summary: dayData['summary']!,
+                            humidity: dayData['humidity']!,
+                            rain: dayData['rain']!,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
