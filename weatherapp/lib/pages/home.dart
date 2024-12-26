@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:weatherapp/pages/seven_day_history.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -11,6 +13,60 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
+  String city = 'Fetching location...';
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try{
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          city = 'Location services are disabled';
+        });
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if(permission == LocationPermission.denied){
+        permission = await Geolocator.requestPermission();
+        if(permission == LocationPermission.denied){
+          setState(() {
+            city = 'Location permissions are denied';
+          });
+          return;
+        }
+      }
+
+      if(permission == LocationPermission.deniedForever){
+        setState(() {
+          city = 'Location permissions are permanently denied';
+        });
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if(placemarks.isNotEmpty){
+        Placemark place = placemarks[0];
+        setState(() {
+          city = place.locality ?? 'Unknown location';
+        });
+      } else {
+        setState(() {
+          city = 'Unknown location';
+        });
+      }
+    } catch (error){
+      print('Error getting location: $error');
+    }
+  }
+
   void _navigateToSevenDayHistory() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => const SevenDayHistory()));
   }
@@ -29,8 +85,8 @@ class _HomePage extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(Icons.sunny, size: 100, color: Color.fromRGBO(255, 172, 51, 1)),
-            const Text(
-              'Timisoara',
+            Text(
+              city,
               style: TextStyle(fontSize: 40),
             ),
             Row(
@@ -62,7 +118,7 @@ class _HomePage extends State<HomePage> {
         ),
       ),
       floatingActionButton: SizedBox(
-        width: 100,
+        width: 120,
         height: 30,
         child: FloatingActionButton(
           onPressed: _navigateToSevenDayHistory,
