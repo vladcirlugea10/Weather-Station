@@ -4,7 +4,11 @@ import 'package:weatherapp/widgets/DayCard.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class SevenDayHistory extends StatefulWidget {
-  const SevenDayHistory({super.key});
+  final String city;
+  const SevenDayHistory({
+      super.key,
+      required this.city,
+    });
 
   @override
   State<SevenDayHistory> createState() => _SevenDayHistoryState();
@@ -36,6 +40,7 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
             if (dayData is Map) {
               return {
                 'day': DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)).toString(),
+                'timestamp': timestamp,
                 'summary': 
                   'Temp: ${dayData['temperature'] ?? 'N/A'}°C\n'
                   'Pressure: ${dayData['pressure'] ?? 'N/A'} hPa',
@@ -46,11 +51,14 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
             
             return {
               'day': DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)).toString(),
+              'timestamp': timestamp,
               'summary': 'Invalid data',
               'humidity': 'N/A',
               'rain': 'N/A',
             };
-          }).toList();
+          }).toList()..sort((a, b){
+            return int.parse(b['timestamp']!).compareTo(int.parse(a['timestamp']!));
+          });
           
           isLoading = false;
         });
@@ -78,36 +86,53 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('7 Day History'),
+        title: Text('7 Day History'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemCount: weatherData.length,
-                itemBuilder: (context, index) {
-                  final dayData = weatherData[index];
-                  return DayCard(
-                    day: dayData['day']!,
-                    data: dayData['summary']!,
-                    humidity: dayData['humidity']!,
-                    rain: dayData['rain']!,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DayDetails(
-                            day: dayData['day']!,
-                            summary: dayData['summary']!,
-                            humidity: dayData['humidity']!,
-                            rain: dayData['rain']!,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(
+                      widget.city,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: weatherData.length,
+                      itemBuilder: (context, index) {
+                        final dayData = weatherData[index];
+                        return DayCard(
+                          day: dayData['day']!,
+                          data: dayData['summary']!,
+                          humidity: dayData['humidity']!,
+                          rain: dayData['rain']!,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DayDetails(
+                                  day: dayData['day']!,
+                                  summary: dayData['summary']!,
+                                  humidity: dayData['humidity']!,
+                                  rain: dayData['rain']!,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
       ),
     );
