@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherapp/utils/date_utils.dart';
+import 'package:weatherapp/utils/weather_icon_utils.dart';
 
 class DayCard extends StatefulWidget {
   final String day;
@@ -109,7 +110,7 @@ class _DayCardState extends State<DayCard> {
                       ),
                     ],
                   ),
-                  const Icon(Icons.sunny, color: Colors.orange, size: 50),
+                  getWeatherIcon(widget.rain),
                 ],
               ),
               const SizedBox(height: 16),

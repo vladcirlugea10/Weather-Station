@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
-  String city = 'Fetching location...';
+  String city = 'Loading...';
   String humidity = "N/A";
   String rain = "N/A";
   String temperature = "N/A";
