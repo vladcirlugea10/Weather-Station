@@ -46,6 +46,7 @@ class _DayDetailsState extends State<DayDetails> {
                 "temperature": double.parse(hour['temperature']).round(),
                 "humidity": hour['humidity'],
                 "rain": hour['rain'],
+                "pressure": hour['pressure'],
               }).toList();
           isLoading = false;
         });
@@ -81,6 +82,7 @@ class _DayDetailsState extends State<DayDetails> {
                   humidity: hour['humidity'], // Use humidity
                   rain: hour['rain'], // Use rain percentage
                   temperature: "${hour['temperature']}", // Use temperature
+                  pressure: "${hour['pressure']}", // Use pressure
                   onTap: () {
                     print("Hour ${hour['hour']} clicked!");
                   },

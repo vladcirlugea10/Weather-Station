@@ -6,17 +6,19 @@ import 'package:weatherapp/utils/weather_icon_utils.dart';
 
 class DayCard extends StatefulWidget {
   final String day;
-  final String data;
+  final String temperature;
   final String humidity;
   final String rain;
+  final String pressure;
   final VoidCallback onTap;
 
   const DayCard({
     super.key,
     required this.day,
-    required this.data,
+    required this.temperature,
     required this.humidity,
     required this.rain,
+    required this.pressure,
     required this.onTap,
   });
 
@@ -43,13 +45,13 @@ class _DayCardState extends State<DayCard> {
           Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/dailyMaximums?day=$day'));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Response Data: $data');
+        final temperature = jsonDecode(response.body);
+        print('Response temperature: $temperature');
 
-        if (data != null) {
+        if (temperature != null) {
           setState(() {
-            minTemperature = '${data['minTemperature'].toStringAsFixed(1)}';
-            maxTemperature = '${data['maxTemperature'].toStringAsFixed(1)}';
+            minTemperature = '${temperature['minTemperature'].toStringAsFixed(1)}';
+            maxTemperature = '${temperature['maxTemperature'].toStringAsFixed(1)}';
             print("AICI: $minTemperature / $maxTemperature");
           });
         } else {
@@ -59,14 +61,14 @@ class _DayCardState extends State<DayCard> {
           });
         }
       } else {
-        print('Failed to fetch data!');
+        print('Failed to fetch temperature!');
         setState(() {
           minTemperature = 'N/A';
           maxTemperature = 'N/A';
         });
       }
     } catch (error) {
-      print('Failed to fetch data $error');
+      print('Failed to fetch temperature $error');
       setState(() {
         minTemperature = 'N/A';
         maxTemperature = 'N/A';
@@ -147,6 +149,24 @@ class _DayCardState extends State<DayCard> {
                       ),
                       Text(
                         "${widget.rain}%",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Icon(Icons.speed, color: Colors.purple),
+                      const Text(
+                        "Pressure",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        "${widget.pressure} hPa",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),

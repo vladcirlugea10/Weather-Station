@@ -41,11 +41,10 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
         weatherData = data.map((entry) {
           return {
             'day': entry['day'] as String,
-            'summary':
-              'Temp: ${entry['temperature']}°C\n'
-              'Pressure: ${entry['pressure']} hPa\n',
+            'temperature': entry['temperature'].toString(),
             'humidity': entry['humidity'].toString(),
             'rain': entry['rainPercentage'].toString(),
+            'pressure': entry['pressure'].toString(),
           };
         }).toList();
 
@@ -98,16 +97,17 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                         final dayData = weatherData[index];
                         return DayCard(
                           day: dayData['day']!,
-                          data: dayData['summary']!,
+                          temperature: dayData['temperature']!,
                           humidity: dayData['humidity']!,
                           rain: dayData['rain']!,
+                          pressure: dayData['pressure']!,
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => DayDetails(
                                   day: dayData['day']!,
-                                  summary: dayData['summary']!,
+                                  summary: dayData['temperature']!,
                                   humidity: dayData['humidity']!,
                                   rain: dayData['rain']!,
                                 ),
