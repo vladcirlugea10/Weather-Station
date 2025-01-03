@@ -80,6 +80,7 @@ class _DayDetailsState extends State<DayDetails> {
                   data: "${hour['temperature']}°C", // Use temperature as data
                   humidity: hour['humidity'], // Use humidity
                   rain: hour['rain'], // Use rain percentage
+                  temperature: "${hour['temperature']}", // Use temperature
                   onTap: () {
                     print("Hour ${hour['hour']} clicked!");
                   },

@@ -6,6 +6,7 @@ class HourCard extends StatefulWidget {
   final String data;
   final String humidity;
   final String rain;
+  final String temperature;
   final VoidCallback onTap;
 
   const HourCard({
@@ -14,6 +15,7 @@ class HourCard extends StatefulWidget {
     required this.data,
     required this.humidity,
     required this.rain,
+    required this.temperature,
     required this.onTap,
   });
 
@@ -94,6 +96,24 @@ class HourCardState extends State<HourCard> {
                       ),
                       Text(
                         "${widget.rain}%",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Icon(Icons.thermostat, color: Colors.red),
+                      const Text(
+                        "Temp",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        "${widget.temperature}°C",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
