@@ -43,7 +43,7 @@ class _DayDetailsState extends State<DayDetails> {
         setState(() {
           hourlyData = data.map<Map<String, dynamic>>((hour) => {
                 "hour": hour['hour'],
-                "temperature": hour['temperature'],
+                "temperature": double.parse(hour['temperature']).round(),
                 "humidity": hour['humidity'],
                 "rain": hour['rain'],
               }).toList();
