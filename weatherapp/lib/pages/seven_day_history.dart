@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:weatherapp/pages/day_details.dart';
 import 'package:weatherapp/widgets/DayCard.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:http/http.dart' as http;
 
 class SevenDayHistory extends StatefulWidget {
   final String city;
@@ -16,7 +19,7 @@ class SevenDayHistory extends StatefulWidget {
 
 class _SevenDayHistoryState extends State<SevenDayHistory> {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
-  List<Map<String, String>> weatherData = const [];
+  List<Map<String, dynamic>> weatherData = [];
   bool isLoading = true;
 
   @override
@@ -27,53 +30,36 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
 
   Future<void> _getSensorReadings() async {
   try {
-    final snapshot = await _database.child('sensor_readings').get();
-    if (snapshot.exists) {
-      final data = snapshot.value as dynamic;
+    final response = await http.get(
+      Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/getLastSevenDays'),
+    );
     
-      if (data is Map) {
-        setState(() {
-          weatherData = data.entries.map((entry) {
-            final timestamp = entry.key.toString(); 
-            final dayData = entry.value;
+    if(response.statusCode == 200){
+      final data = jsonDecode(response.body) as List<dynamic>;
 
-            if (dayData is Map) {
-              return {
-                'day': DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)).toString(),
-                'timestamp': timestamp,
-                'summary': 
-                  'Temp: ${dayData['temperature'] ?? 'N/A'}°C\n'
-                  'Pressure: ${dayData['pressure'] ?? 'N/A'} hPa',
-                'humidity': dayData['humidity']?.toString() ?? 'N/A',
-                'rain': dayData['rainPercentage']?.toString() ?? 'N/A',
-              };
-            }
-            
-            return {
-              'day': DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp)).toString(),
-              'timestamp': timestamp,
-              'summary': 'Invalid data',
-              'humidity': 'N/A',
-              'rain': 'N/A',
-            };
-          }).toList()..sort((a, b){
-            return int.parse(b['timestamp']!).compareTo(int.parse(a['timestamp']!));
-          });
-          
-          isLoading = false;
-        });
-      } else {
-        print('Data is not a map');
-        setState(() {
-          isLoading = false;
-        });
-      }
+      setState(() {
+        weatherData = data.map((entry) {
+          return {
+            'day': entry['day'] as String,
+            'summary':
+              'Temp: ${entry['temperature']}°C\n'
+              'Pressure: ${entry['pressure']} hPa\n',
+            'humidity': entry['humidity'].toString(),
+            'rain': entry['rainPercentage'].toString(),
+          };
+        }).toList();
+
+        weatherData.sort((a, b) => b['day']!.compareTo(a['day']!));
+
+        isLoading = false;
+      });
     } else {
-      print('No data available');
+      print('Failed to load data');
       setState(() {
         isLoading = false;
       });
     }
+
   } catch (error) {
     print('Error: $error');
     setState(() {
