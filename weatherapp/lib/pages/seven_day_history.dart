@@ -34,23 +34,44 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
       final response = await http.get(
         Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/getLastSevenDays'),
       );
-      
-      if(response.statusCode == 200){
+
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
 
-        setState(() {
-          weatherData = data.map((entry) {
-            return {
-              'day': entry['day'] as String,
+        // Use a map to ensure unique entries by day
+        Map<String, Map<String, dynamic>> enrichedWeatherDataMap = {};
+
+        for (var entry in data) {
+          final String day = entry['day'];
+
+          // Fetch min and max temperatures for the day
+          final minMaxResponse = await http.get(
+            Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/dailyMaximums?day=$day'),
+          );
+
+          if (minMaxResponse.statusCode == 200) {
+            final minMaxData = jsonDecode(minMaxResponse.body);
+
+            // Add or update the entry for this day
+            enrichedWeatherDataMap[day] = {
+              'day': day,
               'temperature': entry['temperature'].toString(),
               'humidity': entry['humidity'].toString(),
               'rain': entry['rainPercentage'].toString(),
               'pressure': entry['pressure'].toString(),
+              'minTemperature': double.tryParse(minMaxData['minTemperature'].toString()) ?? 0.0,
+              'maxTemperature': double.tryParse(minMaxData['maxTemperature'].toString()) ?? 0.0,
             };
-          }).toList();
+          }
+        }
 
-          weatherData.sort((a, b) => b['day']!.compareTo(a['day']!));
+        // Convert the map to a list and sort it by ascending date
+        final enrichedWeatherData = enrichedWeatherDataMap.values.toList();
+        enrichedWeatherData.sort((a, b) => a['day']!.compareTo(b['day']!));
 
+        setState(() {
+          weatherData = enrichedWeatherData;
+          print("Weather Data: $weatherData");
           isLoading = false;
         });
       } else {
@@ -59,7 +80,6 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
           isLoading = false;
         });
       }
-
     } catch (error) {
       print('Error: $error');
       setState(() {
@@ -68,11 +88,19 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
     }
   }
 
-  List<FlSpot> _generateChartData() {
+  List<FlSpot> _generateMinTemperatureData() {
     return weatherData.asMap().entries.map((entry) {
-      final index = entry.key.toDouble();
-      final temperature = double.tryParse(entry.value['temperature']) ?? 0.0; 
-      return FlSpot(index, temperature);
+      final index = entry.key.toDouble(); // X-axis index
+      final minTemperature = entry.value['minTemperature'] ?? 0.0; // Y-axis value
+      return FlSpot(index, minTemperature);
+    }).toList();
+  }
+
+  List<FlSpot> _generateMaxTemperatureData() {
+    return weatherData.asMap().entries.map((entry) {
+      final index = entry.key.toDouble(); // X-axis index
+      final maxTemperature = entry.value['maxTemperature'] ?? 0.0; // Y-axis value
+      return FlSpot(index, maxTemperature);
     }).toList();
   }
 
@@ -110,17 +138,21 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                             maxY: 40,
                             lineBarsData: [
                               LineChartBarData(
-                                spots: _generateChartData(),
+                                spots: _generateMinTemperatureData(),
                                 isCurved: true,
                                 color: Colors.blue,
                                 barWidth: 4,
                                 isStrokeCapRound: true,
-                                dotData: FlDotData(
-                                  show: true, 
-                                  checkToShowDot: (FlSpot spot, LineChartBarData barData) {
-                                    return true; 
-                                  },
-                                ),
+                                dotData: FlDotData(show: true),
+                                belowBarData: BarAreaData(show: false),
+                              ),
+                              LineChartBarData(
+                                spots: _generateMaxTemperatureData(),
+                                isCurved: true,
+                                color: Colors.orange, // Orange for max temperature
+                                barWidth: 4,
+                                isStrokeCapRound: true,
+                                dotData: FlDotData(show: true),
                                 belowBarData: BarAreaData(show: false),
                               ),
                             ],
@@ -150,6 +182,7 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                                     );
                                   },
                                   reservedSize: 50,
+                                  interval: 1,
                                 ),
                               ),
                               topTitles: AxisTitles(
