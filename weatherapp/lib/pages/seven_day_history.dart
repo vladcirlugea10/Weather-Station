@@ -19,7 +19,6 @@ class SevenDayHistory extends StatefulWidget {
 }
 
 class _SevenDayHistoryState extends State<SevenDayHistory> {
-  final DatabaseReference _database = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> weatherData = [];
   bool isLoading = true;
 
@@ -111,102 +110,106 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
         title: Text('7 Day History'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(
-                      widget.city,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  if (weatherData.isNotEmpty)
-                    SizedBox(
-                      height: 200,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0), // Adjust padding as needed
-                        child: LineChart(
-                          LineChartData(
-                            minY: 0,
-                            maxY: 40,
-                            lineBarsData: [
-                              LineChartBarData(
-                                spots: _generateMinTemperatureData(),
-                                isCurved: true,
-                                color: Colors.blue,
-                                barWidth: 4,
-                                isStrokeCapRound: true,
-                                dotData: FlDotData(show: true),
-                                belowBarData: BarAreaData(show: false),
-                              ),
-                              LineChartBarData(
-                                spots: _generateMaxTemperatureData(),
-                                isCurved: true,
-                                color: Colors.orange, // Orange for max temperature
-                                barWidth: 4,
-                                isStrokeCapRound: true,
-                                dotData: FlDotData(show: true),
-                                belowBarData: BarAreaData(show: false),
-                              ),
-                            ],
-                            titlesData: FlTitlesData(
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: (value, meta) {
-                                    return Text('${value.toInt()}°C', style: const TextStyle(fontSize: 12));
-                                  },
-                                  reservedSize: 40,
-                                ),
-                              ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: (value, meta) {
-                                    final index = value.toInt();
-                                    if (index < 0 || index >= weatherData.length) return const SizedBox();
-                                    return Transform.rotate(
-                                      angle: 0.5, // Tilt the text
-                                      child: Text(
-                                        weatherData[index]['day'], 
-                                        textAlign: TextAlign.right,
-                                        style: const TextStyle(fontSize: 10),
-                                      ),
-                                    );
-                                  },
-                                  reservedSize: 50,
-                                  interval: 1,
-                                ),
-                              ),
-                              topTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: false, // Hide top titles
-                                ),
-                              ),
-                              rightTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: false, // Hide right titles
-                                ),
-                              ),
-                            ),
-                            borderData: FlBorderData(
-                              border: Border.all(color: Colors.black12, width: 1),
-                            ),
-                            gridData: FlGridData(show: true),
-                          ),
+            : SingleChildScrollView( 
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        widget.city,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  const SizedBox(height: 16), // Add spacing between the chart and the list
-                  Expanded(
-                    child: ListView.builder(
+                    if (weatherData.isNotEmpty)
+                      SizedBox(
+                        height: 200,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: LineChart(
+                            LineChartData(
+                              minX: -0.25, 
+                              maxX: weatherData.length - 0.75, 
+                              minY: 0,
+                              maxY: 40,
+                              lineBarsData: [
+                                LineChartBarData(
+                                  spots: _generateMinTemperatureData(),
+                                  isCurved: true,
+                                  color: Colors.blue,
+                                  barWidth: 4,
+                                  isStrokeCapRound: true,
+                                  dotData: FlDotData(show: true),
+                                  belowBarData: BarAreaData(show: false),
+                                ),
+                                LineChartBarData(
+                                  spots: _generateMaxTemperatureData(),
+                                  isCurved: true,
+                                  color: Colors.orange,
+                                  barWidth: 4,
+                                  isStrokeCapRound: true,
+                                  dotData: FlDotData(show: true),
+                                  belowBarData: BarAreaData(show: false),
+                                ),
+                              ],
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    getTitlesWidget: (value, meta) {
+                                      return Text('${value.toInt()}°C', style: const TextStyle(fontSize: 12));
+                                    },
+                                    reservedSize: 40,
+                                  ),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    getTitlesWidget: (value, meta) {
+                                      final index = value.toInt();
+                                      if (value % 1 != 0 || index < 0 || index >= weatherData.length) return const SizedBox();
+                                      return Transform.rotate(
+                                        angle: 0.5,
+                                        child: Text(
+                                          weatherData[index]['day'],
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(fontSize: 10),
+                                        ),
+                                      );
+                                    },
+                                    reservedSize: 50,
+                                    interval: 1,
+                                  ),
+                                ),
+                                topTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: false,
+                                  ),
+                                ),
+                                rightTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: false,
+                                  ),
+                                ),
+                              ),
+                              borderData: FlBorderData(
+                                border: Border.all(color: Colors.black12, width: 1),
+                              ),
+                              gridData: FlGridData(show: true),
+                            ),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16), 
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(), 
+                      shrinkWrap: true, 
                       itemCount: weatherData.length,
                       itemBuilder: (context, index) {
                         final dayData = weatherData[index];
@@ -232,8 +235,8 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                         );
                       },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
       ),
     );
