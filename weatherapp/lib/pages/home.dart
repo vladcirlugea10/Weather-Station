@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:weatherapp/pages/seven_day_history.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -13,12 +16,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
-  String city = 'Fetching location...';
+  String city = 'Loading...';
+  String humidity = "N/A";
+  String rain = "N/A";
+  String temperature = "N/A";
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    fetchLatestData();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -67,8 +74,52 @@ class _HomePage extends State<HomePage> {
     }
   }
 
+  Future<void> fetchLatestData() async {
+  try {
+    final response = await http.get(
+      Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/getNewestEntry'),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+
+      if (responseData != null && responseData['data'] != null) {
+        final dataMap = responseData['data'] as Map<String, dynamic>;
+        final firstEntry = dataMap.values.first;
+
+        setState(() {
+          humidity = '${firstEntry['humidity']}';
+          rain = '${firstEntry['rainPercentage']}';
+          temperature = '${firstEntry['temperature'].toStringAsFixed(1)}';
+        });
+      } else {
+        setState(() {
+          humidity = 'N/A';
+          rain = 'N/A';
+          temperature = 'N/A';
+        });
+        print('No valid data found.');
+      }
+    } else {
+      setState(() {
+        humidity = 'N/A';
+        rain = 'N/A';
+        temperature = 'N/A';
+      });
+      print('Failed to fetch data. Status code: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching data: $error');
+    setState(() {
+      humidity = 'N/A';
+      rain = 'N/A';
+      temperature = 'N/A';
+    });
+  }
+}
+
   void _navigateToSevenDayHistory() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const SevenDayHistory()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SevenDayHistory(city: city)));
   }
 
   @override
@@ -86,8 +137,8 @@ class _HomePage extends State<HomePage> {
           children: <Widget>[
             const Icon(Icons.sunny, size: 100, color: Color.fromRGBO(255, 172, 51, 1)),
             Text(
-              city,
-              style: TextStyle(fontSize: 40),
+              "$city $temperature°C",
+              style: TextStyle(fontSize: 36),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -99,17 +150,17 @@ class _HomePage extends State<HomePage> {
                   ],
                 ),
                 const SizedBox(width: 50),
-                const Column(
+                Column(
                   children: [
-                    Text("Humidity"),
-                    Text("80%"),
+                    const Text("Humidity"),
+                    Text("$humidity%"),
                   ],
                 ),
                 const SizedBox(width: 50),
-                const Column(
+                Column(
                   children: [
-                    Text("RAIN"),
-                    Text("10%"),
+                    const Text("RAIN"),
+                    Text("$rain%"),
                   ],
                 ),
               ],

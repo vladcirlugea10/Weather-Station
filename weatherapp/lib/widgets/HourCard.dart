@@ -1,79 +1,35 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:weatherapp/utils/date_utils.dart';
 import 'package:weatherapp/utils/weather_icon_utils.dart';
 
-class DayCard extends StatefulWidget {
+class HourCard extends StatefulWidget {
   final String day;
-  final String temperature;
+  final String data;
   final String humidity;
   final String rain;
+  final String temperature;
   final String pressure;
   final VoidCallback onTap;
 
-  const DayCard({
+  const HourCard({
     super.key,
     required this.day,
-    required this.temperature,
+    required this.data,
     required this.humidity,
     required this.rain,
+    required this.temperature,
     required this.pressure,
     required this.onTap,
   });
 
   @override
-  _DayCardState createState() => _DayCardState();
+  HourCardState createState() => HourCardState();
 }
 
-class _DayCardState extends State<DayCard> {
-  late String minTemperature;
-  late String maxTemperature;
+class HourCardState extends State<HourCard> {
 
   @override
   void initState() {
     super.initState();
-    minTemperature = 'Loading';
-    maxTemperature = 'Loading';
-    fetchMinMaxTemperatures();
-  }
-
-  Future<void> fetchMinMaxTemperatures() async {
-    try {
-      final String day = extractDate(widget.day);
-      final response = await http.get(
-          Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/dailyMaximums?day=$day'));
-
-      if (response.statusCode == 200) {
-        final temperature = jsonDecode(response.body);
-        print('Response temperature: $temperature');
-
-        if (temperature != null) {
-          setState(() {
-            minTemperature = '${temperature['minTemperature'].toStringAsFixed(1)}';
-            maxTemperature = '${temperature['maxTemperature'].toStringAsFixed(1)}';
-            print("AICI: $minTemperature / $maxTemperature");
-          });
-        } else {
-          setState(() {
-            minTemperature = 'N/A';
-            maxTemperature = 'N/A';
-          });
-        }
-      } else {
-        print('Failed to fetch temperature!');
-        setState(() {
-          minTemperature = 'N/A';
-          maxTemperature = 'N/A';
-        });
-      }
-    } catch (error) {
-      print('Failed to fetch temperature $error');
-      setState(() {
-        minTemperature = 'N/A';
-        maxTemperature = 'N/A';
-      });
-    }
   }
 
   @override
@@ -101,13 +57,6 @@ class _DayCardState extends State<DayCard> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        "$maxTemperature°C / $minTemperature°C",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
                         ),
                       ),
                     ],
@@ -160,13 +109,26 @@ class _DayCardState extends State<DayCard> {
                       const Icon(Icons.speed, color: Colors.purple),
                       const Text(
                         "Pressure",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      Text(
+                        "${widget.pressure} hPa",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Icon(Icons.thermostat, color: Colors.red),
+                      const Text(
+                        "Temp",
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
                         ),
                       ),
                       Text(
-                        "${widget.pressure} hPa",
+                        "${widget.temperature}°C",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
