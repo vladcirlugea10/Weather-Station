@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:weatherapp/utils/weather_icon_utils.dart';
+import 'package:weatherapp/pages/home.dart'; // Import for temperatureUnitNotifier
+import 'package:weatherapp/utils/temperature_utils.dart'; // Import for convertToUnit
 
 class HourCard extends StatefulWidget {
   final String day;
-  final String data;
+  final String data; // This will show the temperature in the UI
   final String humidity;
   final String rain;
-  final String temperature;
+  final String temperature; // Raw temperature (Celsius)
   final String pressure;
   final VoidCallback onTap;
 
@@ -26,12 +28,6 @@ class HourCard extends StatefulWidget {
 }
 
 class HourCardState extends State<HourCard> {
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -127,11 +123,18 @@ class HourCardState extends State<HourCard> {
                           color: Colors.grey,
                         ),
                       ),
-                      Text(
-                        "${widget.temperature}°C",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      ValueListenableBuilder<String>(
+                        valueListenable: temperatureUnitNotifier,
+                        builder: (context, unit, child) {
+                          final rawTempCelsius = double.tryParse(widget.temperature) ?? 0.0;
+                          final convertedTemp = convertToUnit(rawTempCelsius, unit);
+                          return Text(
+                            "${convertedTemp.toStringAsFixed(1)}°$unit",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

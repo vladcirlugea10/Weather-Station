@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherapp/utils/date_utils.dart';
 import 'package:weatherapp/utils/weather_icon_utils.dart';
+import 'package:weatherapp/pages/home.dart'; 
+import 'package:weatherapp/utils/temperature_utils.dart'; 
 
 class DayCard extends StatefulWidget {
   final String day;
@@ -27,14 +29,14 @@ class DayCard extends StatefulWidget {
 }
 
 class _DayCardState extends State<DayCard> {
-  late String minTemperature;
-  late String maxTemperature;
+  late double minTemperature; // Store as double for conversion
+  late double maxTemperature;
 
   @override
   void initState() {
     super.initState();
-    minTemperature = 'Loading';
-    maxTemperature = 'Loading';
+    minTemperature = 0.0; // Initialize to 0.0
+    maxTemperature = 0.0;
     fetchMinMaxTemperatures();
   }
 
@@ -42,36 +44,34 @@ class _DayCardState extends State<DayCard> {
     try {
       final String day = extractDate(widget.day);
       final response = await http.get(
-          Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/dailyMaximums?day=$day'));
+        Uri.parse('https://us-central1-weather-app-fe906.cloudfunctions.net/dailyMaximums?day=$day'),
+      );
 
       if (response.statusCode == 200) {
         final temperature = jsonDecode(response.body);
-        print('Response temperature: $temperature');
-
         if (temperature != null) {
           setState(() {
-            minTemperature = '${temperature['minTemperature'].toStringAsFixed(1)}';
-            maxTemperature = '${temperature['maxTemperature'].toStringAsFixed(1)}';
-            print("AICI: $minTemperature / $maxTemperature");
+            minTemperature = double.tryParse(temperature['minTemperature'].toString()) ?? 0.0;
+            maxTemperature = double.tryParse(temperature['maxTemperature'].toString()) ?? 0.0;
           });
         } else {
           setState(() {
-            minTemperature = 'N/A';
-            maxTemperature = 'N/A';
+            minTemperature = 0.0;
+            maxTemperature = 0.0;
           });
         }
       } else {
         print('Failed to fetch temperature!');
         setState(() {
-          minTemperature = 'N/A';
-          maxTemperature = 'N/A';
+          minTemperature = 0.0;
+          maxTemperature = 0.0;
         });
       }
     } catch (error) {
-      print('Failed to fetch temperature $error');
+      print('Failed to fetch temperature: $error');
       setState(() {
-        minTemperature = 'N/A';
-        maxTemperature = 'N/A';
+        minTemperature = 0.0;
+        maxTemperature = 0.0;
       });
     }
   }
@@ -103,12 +103,19 @@ class _DayCardState extends State<DayCard> {
                           fontSize: 16,
                         ),
                       ),
-                      Text(
-                        "$maxTemperature°C / $minTemperature°C",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
+                      ValueListenableBuilder<String>(
+                        valueListenable: temperatureUnitNotifier,
+                        builder: (context, unit, child) {
+                          final convertedMinTemp = convertToUnit(minTemperature, unit);
+                          final convertedMaxTemp = convertToUnit(maxTemperature, unit);
+                          return Text(
+                            "${convertedMaxTemp.toStringAsFixed(1)}°$unit / ${convertedMinTemp.toStringAsFixed(1)}°$unit",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

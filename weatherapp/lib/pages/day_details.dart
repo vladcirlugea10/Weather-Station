@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:weatherapp/pages/home.dart';
 import 'package:weatherapp/widgets/HourCard.dart';
+import 'package:weatherapp/utils/temperature_utils.dart'; 
 
 class DayDetails extends StatefulWidget {
   final String day;
@@ -43,7 +45,7 @@ class _DayDetailsState extends State<DayDetails> {
         setState(() {
           hourlyData = data.map<Map<String, dynamic>>((hour) => {
                 "hour": hour['hour'],
-                "temperature": double.parse(hour['temperature']).round(),
+                "temperature": double.parse(hour['temperature']),
                 "humidity": hour['humidity'],
                 "rain": hour['rain'],
                 "pressure": hour['pressure'],
@@ -76,15 +78,21 @@ class _DayDetailsState extends State<DayDetails> {
               itemCount: hourlyData.length,
               itemBuilder: (context, index) {
                 final hour = hourlyData[index];
-                return HourCard(
-                  day: "${hour['hour']}:00", // Format the hour
-                  data: "${hour['temperature']}°C", // Use temperature as data
-                  humidity: hour['humidity'], // Use humidity
-                  rain: hour['rain'], // Use rain percentage
-                  temperature: "${hour['temperature']}", // Use temperature
-                  pressure: "${hour['pressure']}", // Use pressure
-                  onTap: () {
-                    print("Hour ${hour['hour']} clicked!");
+                return ValueListenableBuilder<String>(
+                  valueListenable: temperatureUnitNotifier,
+                  builder: (context, unit, child) {
+                    final convertedTemperature = convertToUnit(hour['temperature'], unit);
+                    return HourCard(
+                      day: "${hour['hour']}:00", // Format the hour
+                      data: "${convertedTemperature.toStringAsFixed(1)}°$unit", // Display converted temperature
+                      humidity: hour['humidity'], // Use humidity
+                      rain: hour['rain'], // Use rain percentage
+                      temperature: "${convertedTemperature.toStringAsFixed(1)}", // Converted temperature
+                      pressure: "${hour['pressure']}", // Use pressure
+                      onTap: () {
+                        print("Hour ${hour['hour']} clicked!");
+                      },
+                    );
                   },
                 );
               },
