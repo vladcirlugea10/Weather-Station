@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherapp/utils/temperature_utils.dart';
+import 'package:weatherapp/utils/weather_icon_utils.dart';
 
 ValueNotifier<String> temperatureUnitNotifier = ValueNotifier<String>('C');
 
@@ -153,28 +154,28 @@ class _HomePage extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Icon(Icons.sunny, size: 100, color: Color.fromRGBO(255, 172, 51, 1)),
+            getWeatherIcon(rain),
             const SizedBox(height: 24),
             ValueListenableBuilder<String>(
               valueListenable: temperatureUnitNotifier,
               builder: (context, unit, child) {
-                final convertedTemperature = convertToUnit(temperature, unit);
+                final convertedTemperature = convertToUnit(temperature, unit).round();
                 return Column(
                   children: [
                     Text(
                       city,
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8), // Add space between city and temperature
+                    const SizedBox(height: 8), 
                     Text(
-                      "${convertedTemperature.toStringAsFixed(1)}°$unit",
+                      "${convertedTemperature.toString()}°$unit",
                       style: const TextStyle(fontSize: 36),
                     ),
                   ],
                 );
               },
             ),
-            const SizedBox(height: 24), // Space between temperature and Time section
+            const SizedBox(height: 24), 
             Column(
               children: [
                 const Text("TIME", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -188,19 +189,19 @@ class _HomePage extends State<HomePage> {
                 Column(
                   children: [
                     const Text("Humidity", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("$humidity%"),
+                    Text("${double.tryParse(humidity)?.round() ?? 'N/A'}%"),
                   ],
                 ),
                 Column(
                   children: [
                     const Text("Rain", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("$rain%"),
+                    Text("${double.tryParse(rain)?.round() ?? 'N/A'}%"),
                   ],
                 ),
                 Column(
                   children: [
                     const Text("Pressure", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("$pressure hPa"),
+                    Text("${double.tryParse(pressure)?.round() ?? 'N/A'} hPa"),
                   ],
                 ),
               ],

@@ -40,14 +40,14 @@ exports.getLastSevenDays = functions.https.onRequest(async (req, res) => {
         }, {});
 
     const summaries = Object.values(filteredData).map((dayData) => {
-      const average = (arr) => (arr.length ? arr
-          .reduce((sum, val) => sum + val, 0) / arr.length : 0);
+      const max = (arr) => (arr.length ? Math.max(...arr) : 0);
+      const average = (arr) => (arr.length ? arr.reduce((sum, val) => sum + val, 0) / arr.length : 0);
       return {
         day: dayData.date,
         temperature: average(dayData.temperature).toFixed(1),
-        pressure: average(dayData.pressure).toFixed(1),
-        humidity: average(dayData.humidity).toFixed(1),
-        rainPercentage: average(dayData.rainPercentage).toFixed(1),
+        pressure: max(dayData.pressure).toFixed(1),
+        humidity: max(dayData.humidity).toFixed(1),
+        rainPercentage: max(dayData.rainPercentage).toFixed(1),
       };
     });
 
