@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:weatherapp/pages/settings_page.dart';
 import 'package:weatherapp/pages/seven_day_history.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -228,48 +229,6 @@ class _HomePage extends State<HomePage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Temperature Unit:', style: TextStyle(fontSize: 18)),
-            Row(
-              children: [
-                Radio<String>(
-                  value: 'C',
-                  groupValue: temperatureUnitNotifier.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      temperatureUnitNotifier.value = value;
-                    }
-                  },
-                ),
-                const Text('Celsius'),
-                Radio<String>(
-                  value: 'F',
-                  groupValue: temperatureUnitNotifier.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      temperatureUnitNotifier.value = value;
-                    }
-                  },
-                ),
-                const Text('Fahrenheit'),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

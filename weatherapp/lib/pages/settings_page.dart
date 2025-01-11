@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  String _selectedUnit = temperatureUnitNotifier.value;
+
+  void _onUnitChanged(String? value) {
+    if (value != null) {
+      setState(() {
+        _selectedUnit = value;
+        temperatureUnitNotifier.value = value;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,22 +32,14 @@ class SettingsPage extends StatelessWidget {
               children: [
                 Radio<String>(
                   value: 'C',
-                  groupValue: temperatureUnitNotifier.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      temperatureUnitNotifier.value = value;
-                    }
-                  },
+                  groupValue: _selectedUnit,
+                  onChanged: _onUnitChanged,
                 ),
                 const Text('Celsius'),
                 Radio<String>(
                   value: 'F',
-                  groupValue: temperatureUnitNotifier.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      temperatureUnitNotifier.value = value;
-                    }
-                  },
+                  groupValue: _selectedUnit,
+                  onChanged: _onUnitChanged,
                 ),
                 const Text('Fahrenheit'),
               ],
