@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherapp/pages/home.dart';
 import 'package:weatherapp/widgets/HourCard.dart';
-import 'package:weatherapp/utils/temperature_utils.dart'; 
 
 class DayDetails extends StatefulWidget {
   final String day;
@@ -11,7 +10,7 @@ class DayDetails extends StatefulWidget {
   final String humidity;
   final String rain;
 
-  const DayDetails({
+  const DayDetails({ 
     super.key,
     required this.day,
     required this.summary,
@@ -78,21 +77,15 @@ class _DayDetailsState extends State<DayDetails> {
               itemCount: hourlyData.length,
               itemBuilder: (context, index) {
                 final hour = hourlyData[index];
-                return ValueListenableBuilder<String>(
-                  valueListenable: temperatureUnitNotifier,
-                  builder: (context, unit, child) {
-                    final convertedTemperature = convertToUnit(hour['temperature'], unit);
-                    return HourCard(
-                      day: "${hour['hour']}:00", // Format the hour
-                      data: "${convertedTemperature.toStringAsFixed(1)}°$unit", // Display converted temperature
-                      humidity: hour['humidity'], // Use humidity
-                      rain: hour['rain'], // Use rain percentage
-                      temperature: "${convertedTemperature.toStringAsFixed(1)}", // Converted temperature
-                      pressure: "${hour['pressure']}", // Use pressure
-                      onTap: () {
-                        print("Hour ${hour['hour']} clicked!");
-                      },
-                    );
+                return HourCard(
+                  day: "${hour['hour']}:00", 
+                  data: "${hour['temperature'].toStringAsFixed(1)}°${temperatureUnitNotifier.value}", 
+                  humidity: hour['humidity'], 
+                  rain: hour['rain'], 
+                  temperature: "${hour['temperature'].toStringAsFixed(1)}", 
+                  pressure: "${hour['pressure']}", 
+                  onTap: () {
+                    print("Hour ${hour['hour']} clicked!");
                   },
                 );
               },
