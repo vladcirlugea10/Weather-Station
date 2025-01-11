@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:weatherapp/utils/pressure_utils.dart';
 import 'package:weatherapp/utils/weather_icon_utils.dart';
-import 'package:weatherapp/pages/home.dart'; // Import for temperatureUnitNotifier
-import 'package:weatherapp/utils/temperature_utils.dart'; // Import for convertToUnit
+import 'package:weatherapp/pages/home.dart'; 
+import 'package:weatherapp/utils/temperature_utils.dart'; 
 
 class HourCard extends StatefulWidget {
   final String day;
-  final String data; // This will show the temperature in the UI
+  final String data;
   final String humidity;
   final String rain;
-  final String temperature; // Raw temperature (Celsius)
+  final String temperature; 
   final String pressure;
   final VoidCallback onTap;
 
@@ -107,9 +108,18 @@ class HourCardState extends State<HourCard> {
                         "Pressure",
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
-                      Text(
-                        "${widget.pressure} hPa",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ValueListenableBuilder<String>(
+                        valueListenable: pressureUnitNotifier, 
+                        builder: (context, unit, child) {
+                          final rawPressure = double.tryParse(widget.pressure) ?? 0.0;
+                          final convertedPressure = convertPressureToUnit(rawPressure, unit).round();
+                          return Text(
+                            "$convertedPressure $unit",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

@@ -7,13 +7,23 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  String _selectedUnit = temperatureUnitNotifier.value;
+  String _selectedTemperatureUnit = temperatureUnitNotifier.value;
+  String _selectedPressureUnit = pressureUnitNotifier.value;
 
-  void _onUnitChanged(String? value) {
+  void _onTemperatureUnitChanged(String? value) {
     if (value != null) {
       setState(() {
-        _selectedUnit = value;
+        _selectedTemperatureUnit = value;
         temperatureUnitNotifier.value = value;
+      });
+    }
+  }
+
+  void _onPressureUnitChanged(String? value) {
+    if (value != null) {
+      setState(() {
+        _selectedPressureUnit = value;
+        pressureUnitNotifier.value = value;
       });
     }
   }
@@ -32,16 +42,34 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 Radio<String>(
                   value: 'C',
-                  groupValue: _selectedUnit,
-                  onChanged: _onUnitChanged,
+                  groupValue: _selectedTemperatureUnit,
+                  onChanged: _onTemperatureUnitChanged,
                 ),
                 const Text('Celsius'),
                 Radio<String>(
                   value: 'F',
-                  groupValue: _selectedUnit,
-                  onChanged: _onUnitChanged,
+                  groupValue: _selectedTemperatureUnit,
+                  onChanged: _onTemperatureUnitChanged,
                 ),
                 const Text('Fahrenheit'),
+              ],
+            ),
+            const SizedBox(height: 16), 
+            const Text('Pressure Unit:', style: TextStyle(fontSize: 18)),
+            Row(
+              children: [
+                Radio<String>(
+                  value: 'hPa',
+                  groupValue: _selectedPressureUnit,
+                  onChanged: _onPressureUnitChanged,
+                ),
+                const Text('hPa'),
+                Radio<String>(
+                  value: 'mmHg',
+                  groupValue: _selectedPressureUnit,
+                  onChanged: _onPressureUnitChanged,
+                ),
+                const Text('mmHg'),
               ],
             ),
           ],

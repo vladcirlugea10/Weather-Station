@@ -5,10 +5,12 @@ import 'package:weatherapp/pages/seven_day_history.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
+import 'package:weatherapp/utils/pressure_utils.dart';
 import 'package:weatherapp/utils/temperature_utils.dart';
 import 'package:weatherapp/utils/weather_icon_utils.dart';
 
 ValueNotifier<String> temperatureUnitNotifier = ValueNotifier<String>('C');
+ValueNotifier<String> pressureUnitNotifier = ValueNotifier<String>('hPa');
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -96,7 +98,7 @@ class _HomePage extends State<HomePage> {
             humidity = '${firstEntry['humidity']}';
             rain = '${firstEntry['rainPercentage']}';
             temperature = double.tryParse(firstEntry['temperature'].toString()) ?? 0.0;
-            pressure = '${firstEntry['pressure']}'; // Fetch and set pressure
+            pressure = '${firstEntry['pressure']}'; 
           });
         } else {
           setState(() {
@@ -201,7 +203,16 @@ class _HomePage extends State<HomePage> {
                 Column(
                   children: [
                     const Text("Pressure", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("${double.tryParse(pressure)?.round() ?? 'N/A'} hPa"),
+                    ValueListenableBuilder<String>(
+                      valueListenable: pressureUnitNotifier,
+                      builder: (context, unit, child) {
+                        final pressureValue = double.tryParse(pressure);
+                        final convertedPressure = pressureValue != null
+                            ? convertPressureToUnit(pressureValue, unit).round()
+                            : 'N/A';
+                        return Text("$convertedPressure $unit");
+                      },
+                    ),
                   ],
                 ),
               ],

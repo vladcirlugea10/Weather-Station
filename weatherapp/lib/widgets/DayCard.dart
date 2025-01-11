@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherapp/utils/date_utils.dart';
+import 'package:weatherapp/utils/pressure_utils.dart';
 import 'package:weatherapp/utils/weather_icon_utils.dart';
 import 'package:weatherapp/pages/home.dart'; 
 import 'package:weatherapp/utils/temperature_utils.dart'; 
@@ -172,11 +173,20 @@ class _DayCardState extends State<DayCard> {
                           color: Colors.grey,
                         ),
                       ),
-                      Text(
-                        "${widget.pressure} hPa",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      ValueListenableBuilder<String>(
+                        valueListenable: pressureUnitNotifier,
+                        builder: (context, unit, child) {
+                          final double? parsedPressure = double.tryParse(widget.pressure);
+                          final convertedPressure = parsedPressure != null
+                              ? convertPressureToUnit(parsedPressure, unit).round()
+                              : 'N/A';
+                          return Text(
+                            "${convertedPressure is double ? convertedPressure.round() : convertedPressure} $unit",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
