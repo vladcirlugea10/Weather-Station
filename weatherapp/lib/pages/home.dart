@@ -4,10 +4,9 @@ import 'package:weatherapp/pages/seven_day_history.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
-import 'package:weatherapp/utils/temperature_utils.dart'; 
+import 'package:weatherapp/utils/temperature_utils.dart';
 
-ValueNotifier<String> temperatureUnitNotifier = ValueNotifier<String>('C'); 
-
+ValueNotifier<String> temperatureUnitNotifier = ValueNotifier<String>('C');
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -22,7 +21,8 @@ class _HomePage extends State<HomePage> {
   String city = 'Loading...';
   String humidity = "N/A";
   String rain = "N/A";
-  double temperature = 0.0; // Change to double for conversion
+  double temperature = 0.0; // For conversion
+  String pressure = "N/A"; // New variable for pressure
 
   @override
   void initState() {
@@ -94,12 +94,14 @@ class _HomePage extends State<HomePage> {
             humidity = '${firstEntry['humidity']}';
             rain = '${firstEntry['rainPercentage']}';
             temperature = double.tryParse(firstEntry['temperature'].toString()) ?? 0.0;
+            pressure = '${firstEntry['pressure']}'; // Fetch and set pressure
           });
         } else {
           setState(() {
             humidity = 'N/A';
             rain = 'N/A';
             temperature = 0.0;
+            pressure = 'N/A';
           });
           print('No valid data found.');
         }
@@ -108,6 +110,7 @@ class _HomePage extends State<HomePage> {
           humidity = 'N/A';
           rain = 'N/A';
           temperature = 0.0;
+          pressure = 'N/A';
         });
         print('Failed to fetch data. Status code: ${response.statusCode}');
       }
@@ -117,6 +120,7 @@ class _HomePage extends State<HomePage> {
         humidity = 'N/A';
         rain = 'N/A';
         temperature = 0.0;
+        pressure = 'N/A';
       });
     }
   }
@@ -149,37 +153,53 @@ class _HomePage extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(Icons.sunny, size: 100, color: Color.fromRGBO(255, 172, 51, 1)),
+            const SizedBox(height: 24),
             ValueListenableBuilder<String>(
               valueListenable: temperatureUnitNotifier,
               builder: (context, unit, child) {
                 final convertedTemperature = convertToUnit(temperature, unit);
-                return Text(
-                  "$city ${convertedTemperature.toStringAsFixed(1)}°$unit",
-                  style: const TextStyle(fontSize: 36),
+                return Column(
+                  children: [
+                    Text(
+                      city,
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8), // Add space between city and temperature
+                    Text(
+                      "${convertedTemperature.toStringAsFixed(1)}°$unit",
+                      style: const TextStyle(fontSize: 36),
+                    ),
+                  ],
                 );
               },
             ),
+            const SizedBox(height: 24), // Space between temperature and Time section
+            Column(
+              children: [
+                const Text("TIME", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(TimeOfDay.now().format(context)),
+              ],
+            ),
+            const SizedBox(height: 24), // Space between Time and row with Humidity, Rain, and Pressure
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   children: [
-                    const Text("TIME"),
-                    Text(TimeOfDay.now().format(context)),
-                  ],
-                ),
-                const SizedBox(width: 50),
-                Column(
-                  children: [
-                    const Text("Humidity"),
+                    const Text("Humidity", style: TextStyle(fontWeight: FontWeight.bold)),
                     Text("$humidity%"),
                   ],
                 ),
-                const SizedBox(width: 50),
                 Column(
                   children: [
-                    const Text("RAIN"),
+                    const Text("Rain", style: TextStyle(fontWeight: FontWeight.bold)),
                     Text("$rain%"),
+                  ],
+                ),
+                Column(
+                  children: [
+                    const Text("Pressure", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("$pressure hPa"),
                   ],
                 ),
               ],
