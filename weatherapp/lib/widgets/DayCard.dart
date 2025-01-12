@@ -30,13 +30,13 @@ class DayCard extends StatefulWidget {
 }
 
 class _DayCardState extends State<DayCard> {
-  late double minTemperature; // Store as double for conversion
+  late double minTemperature;
   late double maxTemperature;
 
   @override
   void initState() {
     super.initState();
-    minTemperature = 0.0; // Initialize to 0.0
+    minTemperature = 0.0;
     maxTemperature = 0.0;
     fetchMinMaxTemperatures();
   }

@@ -130,13 +130,13 @@ class _SevenDayHistoryState extends State<SevenDayHistory> {
                           child: ValueListenableBuilder<String>(
                             valueListenable: temperatureUnitNotifier,
                             builder: (context, unit, child) {
-                              final maxTemperature = convertToUnit(40, unit); // Convert 40°C to the current unit
+                              final maxTemperature = convertToUnit(40, unit); 
                               return LineChart(
                                 LineChartData(
                                   minX: -0.25,
                                   maxX: weatherData.length - 0.75,
                                   minY: 0,
-                                  maxY: maxTemperature, // Dynamically set maxY
+                                  maxY: maxTemperature, 
                                   lineBarsData: [
                                     LineChartBarData(
                                       spots: _generateMinTemperatureData(),

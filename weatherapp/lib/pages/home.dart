@@ -25,8 +25,8 @@ class _HomePage extends State<HomePage> {
   String city = 'Loading...';
   String humidity = "N/A";
   String rain = "N/A";
-  double temperature = 0.0; // For conversion
-  String pressure = "N/A"; // New variable for pressure
+  double temperature = 0.0;
+  String pressure = "N/A";
 
   @override
   void initState() {
@@ -184,7 +184,7 @@ class _HomePage extends State<HomePage> {
                 Text(TimeOfDay.now().format(context)),
               ],
             ),
-            const SizedBox(height: 24), // Space between Time and row with Humidity, Rain, and Pressure
+            const SizedBox(height: 24), 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
