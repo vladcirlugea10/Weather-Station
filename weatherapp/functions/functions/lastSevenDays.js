@@ -41,7 +41,8 @@ exports.getLastSevenDays = functions.https.onRequest(async (req, res) => {
 
     const summaries = Object.values(filteredData).map((dayData) => {
       const max = (arr) => (arr.length ? Math.max(...arr) : 0);
-      const average = (arr) => (arr.length ? arr.reduce((sum, val) => sum + val, 0) / arr.length : 0);
+      const average = (arr) => (arr.length ?
+         arr.reduce((sum, val) => sum + val, 0) / arr.length : 0);
       return {
         day: dayData.date,
         temperature: average(dayData.temperature).toFixed(1),
